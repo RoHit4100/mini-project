@@ -9,7 +9,12 @@ $username_err = $password_err = $confirm_password_err = "";
 /* Processing form data when form is submitted */
 if ($_SERVER["REQUEST_METHOD"] == "POST")
 {
-
+    function validateUserName($userName) {
+    if(preg_match('/^[a-zA-Z][0-9a-zA-Z_]{2,23}[0-9a-zA-Z]$/', $userName)) {
+        return true;
+    }
+    return false;
+    }
     /* Validate username */
     if (empty(trim($_POST["username"])))
     {
@@ -28,6 +33,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
             /* Set parameters */
             $param_username = trim($_POST["username"]);
 
+
             /* Attempt to execute the prepared statement */
             if (mysqli_stmt_execute($stmt))
             {
@@ -39,8 +45,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
                     $username_err = "This username is already taken.";
                 }
                 else
-                {
-                    $username = trim($_POST["username"]);
+                {   
+                    if(validateUserName($param_username)){
+                        $username = trim($_POST["username"]);
+                    }else{
+                        echo "Please enter valid username";
+                    }
+
                 }
             }
             else
@@ -60,11 +71,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
     }
     elseif (strlen(trim($_POST["password"])) < 6)
     {
-        $password_err = "Password must have atleast 6 characters.";
+        $password_err = "Password must have at least 6 characters.";
     }
     else
     {
         $password = trim($_POST["password"]);
+        $password = mysqli_real_escape_string($link, $password);
     }
 
     /* Validate confirm password */
@@ -75,6 +87,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
     else
     {
         $confirm_password = trim($_POST["confirm_password"]);
+        $confirm_password = mysqli_real_escape_string($link, $confirm_password);
         if (empty($password_err) && ($password != $confirm_password))
         {
             $confirm_password_err = "Password did not match.";
@@ -117,18 +130,26 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
     mysqli_close($link);
 }
 ?>
- 
+
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>Sign Up</title>
     <link rel="stylesheet" href="assets/bootstrap.css">
     <style type="text/css">
-        body{ font: 14px sans-serif; }
-        .wrapper{ width: 350px; padding: 20px; }
+    body {
+        font: 14px sans-serif;
+    }
+
+    .wrapper {
+        width: 350px;
+        padding: 20px;
+    }
     </style>
 </head>
+
 <body>
     <div class="wrapper">
         <h2>Sign Up</h2>
@@ -136,17 +157,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
         <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
             <div class="form-group <?php echo (!empty($username_err)) ? 'has-error' : ''; ?>">
                 <label>Username</label>
-                <input type="text" name="username" autocomplete="off" class="form-control" value="<?php echo $username; ?>">
+                <input type="text" name="username" autocomplete="off" class="form-control"
+                    value="<?php echo $username; ?>">
                 <span class="help-block"><?php echo $username_err; ?></span>
-            </div>    
+            </div>
             <div class="form-group <?php echo (!empty($password_err)) ? 'has-error' : ''; ?>">
                 <label>Password</label>
-                <input type="password" name="password" autocomplete="off" class="form-control" value="<?php echo $password; ?>">
+                <input type="password" name="password" autocomplete="off" class="form-control"
+                    value="<?php echo $password; ?>">
                 <span class="help-block"><?php echo $password_err; ?></span>
             </div>
             <div class="form-group <?php echo (!empty($confirm_password_err)) ? 'has-error' : ''; ?>">
                 <label>Confirm Password</label>
-                <input type="password" name="confirm_password" autocomplete="off" class="form-control" value="<?php echo $confirm_password; ?>">
+                <input type="password" name="confirm_password" autocomplete="off" class="form-control"
+                    value="<?php echo $confirm_password; ?>">
                 <span class="help-block"><?php echo $confirm_password_err; ?></span>
             </div>
             <div class="form-group">
@@ -155,6 +179,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
             </div>
             <p>Already have an account? <a href="login.php">Login here</a>.</p>
         </form>
-    </div>    
+    </div>
 </body>
+
 </html>

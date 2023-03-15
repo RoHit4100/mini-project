@@ -8,7 +8,6 @@ if (isset($_SESSION["loggedin"]) && $_SESSION["loggedin"] === true)
     header("location: welcome.php");
     exit;
 }
-
 /* Include config file */
 require_once "config.php";
 
@@ -28,6 +27,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
     else
     {
         $username = trim($_POST["username"]);
+        $username = mysqli_real_escape_string($link, $username);
     }
 
     /* Check if password is empty */
@@ -38,6 +38,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
     else
     {
         $password = trim($_POST["password"]);
+        $password = mysqli_real_escape_string($link, $password);
     }
 
     /* Validate credentials */
@@ -70,18 +71,26 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
     }
 }
 ?>
- 
+
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>Login</title>
     <link rel="stylesheet" href="assets/bootstrap.css">
     <style type="text/css">
-        body{ font: 14px sans-serif; }
-        .wrapper{ width: 350px; padding: 20px; }
+    body {
+        font: 14px sans-serif;
+    }
+
+    .wrapper {
+        width: 350px;
+        padding: 20px;
+    }
     </style>
 </head>
+
 <body>
     <div class="wrapper">
         <h2>Login</h2>
@@ -89,9 +98,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
         <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
             <div class="form-group <?php echo (!empty($username_err)) ? 'has-error' : ''; ?>">
                 <label>Username</label>
-                <input type="text" name="username" autocomplete="off" class="form-control" value="<?php echo $username; ?>">
+                <input type="text" name="username" autocomplete="off" class="form-control"
+                    value="<?php echo $username; ?>">
                 <span class="help-block"><?php echo $username_err; ?></span>
-            </div>    
+            </div>
             <div class="form-group <?php echo (!empty($password_err)) ? 'has-error' : ''; ?>">
                 <label>Password</label>
                 <input type="password" name="password" autocomplete="off" class="form-control">
@@ -102,6 +112,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
             </div>
             <p>Don't have an account? <a href="register.php">Sign up now</a>.</p>
         </form>
-    </div>    
+    </div>
 </body>
+
 </html>
